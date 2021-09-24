@@ -21,9 +21,9 @@ import java.util.Date;
 @Component
 public class CloudStorageHelper {
     private static Storage storage = null;
-
     static {
-        InputStream serviceAccount = null;
+        InputStream serviceAccount =
+                null;
         try {
             serviceAccount = new ClassPathResource("imageupload-9eb93-1bb6a5c3bd61.json").getInputStream();
             storage = StorageOptions.newBuilder()
@@ -34,34 +34,37 @@ public class CloudStorageHelper {
             e.printStackTrace();
         }
     }
-
-    // END init
+    // [END init]
     public String uploadFile(MultipartFile filePart, final String bucketName) throws IOException {
+
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HHmmssSSS");
         String dtString = sdf.format(new Date());
-        final String filename = dtString + "-" + filePart.getOriginalFilename();
+        final String fileName = dtString + "-" + filePart.getOriginalFilename();
         InputStream is = filePart.getInputStream();
         ByteArrayOutputStream os = new ByteArrayOutputStream();
-        byte[] redBuf = new byte[4096];
+        byte[] readBuf = new byte[4096];
         while (is.available() > 0) {
-            int byteRead = is.read(redBuf);
-            os.write(redBuf, 0, byteRead);
+            int bytesRead = is.read(readBuf);
+            os.write(readBuf, 0, bytesRead);
         }
+        // Convert ByteArrayOutputStream into byte[]
         BlobInfo blobInfo =
-                storage.create(
-                        BlobInfo
-                                .newBuilder(bucketName, filename)
-                                .setAcl(new
-                                        ArrayList<>(Arrays.asList(Acl.of(Acl.User.ofAllUsers(), Acl.Role.READER))))
-                                .build(),
-                        os.toByteArray());
+        storage.create(
+        BlobInfo
+         .newBuilder(bucketName, fileName)
+         // Modify access list to allow all users with link to read file
+         .setAcl(new ArrayList<>(Arrays.asList(Acl.of(Acl.User.ofAllUsers(), Acl.Role.READER))))
+         .build(),
+         os.toByteArray());
+        // return the public download link
         return blobInfo.getMediaLink();
     }
 
     public String getImageUrl(MultipartFile file, final String bucket) throws IOException, ServletException {
-        final String filename = file.getOriginalFilename();
-        if (filename != null && !filename.isEmpty() && filename.contains(".")) {
-            final String extension = filename.substring(filename.lastIndexOf('.') + 1);
+        final String fileName = file.getOriginalFilename();
+        // Check extension of file
+        if (fileName != null && !fileName.isEmpty() && fileName.contains(".")) {
+            final String extension = fileName.substring(fileName.lastIndexOf('.') + 1);
             String[] allowedExt = {"jpg", "jpeg", "png", "gif"};
             for (String s : allowedExt) {
                 if (extension.equals(s)) {

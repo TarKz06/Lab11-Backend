@@ -13,10 +13,14 @@ import java.io.IOException;
 
 @Controller
 public class BucketController {
+
     @Autowired
     CloudStorageHelper cloudStorageHelper;
     @PostMapping("/uploadFile")
-    public ResponseEntity<?> uploadFile(@RequestPart(value = "file") MultipartFile file) throws IOException , ServletException{
+    public ResponseEntity<?> uploadFile(@RequestPart(value = "file") MultipartFile file) throws IOException, ServletException {
         return ResponseEntity.ok(this.cloudStorageHelper.getImageUrl(file,"imageupload-9eb93.appspot.com"));
     }
 }
+
+
+
