@@ -10,4 +10,8 @@ public interface OrganizerDao {
     Page<Organizer> getOrganizer(Pageable pageRequest);
 
     Optional<Organizer> findById(Long id);
+
+    Page<Organizer> getOrganizers(Integer pageSize, Integer page);
+    Organizer getOrganizer(Long id);
+    Organizer save(Organizer organizer);
 }
